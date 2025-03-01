@@ -2,6 +2,7 @@ package com.myapp.blog.controllers;
 
 import com.myapp.blog.domain.dtos.CategoryDto;
 import com.myapp.blog.domain.entities.Category;
+import com.myapp.blog.mappers.CategoryMapper;
 import com.myapp.blog.repositories.CategoryRepository;
 import com.myapp.blog.services.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,15 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
 
     @GetMapping
     public ResponseEntity<List<CategoryDto>> listCategories(){
-        List<Category> categories = categoryService.listCategories();
+        List<CategoryDto> categories = categoryService.listCategories()
+                .stream().map(category -> categoryMapper.toDto(category))
+                .toList();
+
+        return ResponseEntity.ok(categories);
 
     }
 }
