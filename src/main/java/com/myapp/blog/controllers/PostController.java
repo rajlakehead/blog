@@ -1,12 +1,18 @@
 package com.myapp.blog.controllers;
 
+import com.myapp.blog.domain.CreatePostRequest;
+import com.myapp.blog.domain.UpdatePostRequest;
+import com.myapp.blog.domain.dtos.CreatePostRequestDto;
 import com.myapp.blog.domain.dtos.PostDto;
+import com.myapp.blog.domain.dtos.UpdatePostRequestDto;
 import com.myapp.blog.domain.entities.Post;
 import com.myapp.blog.domain.entities.User;
 import com.myapp.blog.mappers.PostMapper;
 import com.myapp.blog.services.PostService;
 import com.myapp.blog.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,4 +44,27 @@ public class PostController {
         List<PostDto> postDtos = draftPosts.stream().map(postMapper::toDto).toList();
         return ResponseEntity.ok(postDtos);
     }
+
+    @PostMapping
+    public ResponseEntity<PostDto> createPost(
+            @Valid @RequestBody CreatePostRequestDto createPostRequestDto,
+            @RequestAttribute UUID userId) {
+        User loggedInUser = userService.getUserById(userId);
+        CreatePostRequest createPostRequest = postMapper.toCreatePostRequest(createPostRequestDto);
+        Post createdPost = postService.createPost(loggedInUser, createPostRequest);
+        PostDto createdPostDto = postMapper.toDto(createdPost);
+        return new ResponseEntity<>(createdPostDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<PostDto> updatePost(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdatePostRequestDto updatePostRequestDto) {
+        UpdatePostRequest updatePostRequest = postMapper.toUpdatePostRequest(updatePostRequestDto);
+        Post updatedPost = postService.updatePost(id, updatePostRequest);
+        PostDto updatedPostDto = postMapper.toDto(updatedPost);
+        return ResponseEntity.ok(updatedPostDto);
+    }
+
+
 }

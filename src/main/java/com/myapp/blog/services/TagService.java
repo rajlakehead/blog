@@ -15,4 +15,6 @@ public interface TagService {
 
     Tag getTagById(UUID id);
 
+    List<Tag> getTagByIds(Set<UUID> id);
+
 }
