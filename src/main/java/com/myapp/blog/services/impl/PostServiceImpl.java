@@ -70,6 +70,13 @@ public class PostServiceImpl implements PostService {
 
     }
 
+    @Transactional
+    @Override
+    public void deletePost(UUID id) {
+        Post post = getPost(id);
+        postRepository.delete(post);
+    }
+
     @Override
     @Transactional
     public Post createPost(User user, CreatePostRequest createPostRequest) {
@@ -126,5 +133,11 @@ public class PostServiceImpl implements PostService {
         }
 
         return postRepository.save(existingPost);
+    }
+
+    @Override
+    public Post getPost(UUID id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Post does not exist with ID " + id));
     }
 }
